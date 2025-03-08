@@ -23,7 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class registration extends AppCompatActivity {
 
-    private EditText username;
+
     private EditText password;
     private Button signupbutton;
     private EditText email;
@@ -73,7 +73,6 @@ public class registration extends AppCompatActivity {
     private void registerUser() {
         String emailText = email.getText().toString().trim();
         String passwordText = password.getText().toString().trim();
-        String usernameText = username.getText().toString().trim();
 
         // Validate inputs
         if (TextUtils.isEmpty(emailText)) {
@@ -91,10 +90,6 @@ public class registration extends AppCompatActivity {
             return;
         }
 
-        if (TextUtils.isEmpty(usernameText)) {
-            username.setError("Username is required");
-            return;
-        }
 
         // Show progress (you can add a progress dialog here)
 
