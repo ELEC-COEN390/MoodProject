@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "381246531263",
+    "project_id": "elec-coen-390-6aacd",
+    "storage_bucket": "elec-coen-390-6aacd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381246531263:android:be6ab2279c68c49d08c80a",
+        "android_client_info": {
+          "package_name": "com.example.moodproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcDECYFRIkkcYCmcSGeVTnjHVr1Y1qqQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
