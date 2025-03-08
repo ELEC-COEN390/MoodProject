@@ -13,11 +13,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class MainActivity extends AppCompatActivity {
-    EditText username;
-    EditText password;
-    Button loginbutton;
-    TextView register;
+
+    Button start;
+
+
+    // Firebase Authentication
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,26 +35,36 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        //3333333
-        username= findViewById(R.id.username);
-        password= findViewById(R.id.password);
-        loginbutton= findViewById(R.id.login_button);
-        register= findViewById(R.id.register);
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, registration.class);
-                startActivity(intent);
-            }
-        });
+        start = findViewById(R.id.start);
 
-        loginbutton.setOnClickListener(new View.OnClickListener() {
+        start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, login.class);
                 startActivity(intent);
             }
         });
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            // User is already signed in, redirect to dashboard
+            startActivity(new Intent(MainActivity.this, dashboard.class)); // Create a dashboard activity
+            finish();
+        }
+    }
+
+    // Optional method to sign out user
+    private void signOut() {
+        mAuth.signOut();
+        // Update UI or redirect to login screen
     }
 }
