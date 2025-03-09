@@ -102,13 +102,11 @@ public class registration extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            // You can store additional user data (like username) in Firebase database here
-
                             Toast.makeText(registration.this, "Registration successful!",
                                     Toast.LENGTH_SHORT).show();
 
                             // Navigate to main activity
-                            Intent intent = new Intent(registration.this, MainActivity.class);
+                            Intent intent = new Intent(registration.this, PreferencesActivity.class);
                             startActivity(intent);
                             finish(); // Close this activity
                         } else {
