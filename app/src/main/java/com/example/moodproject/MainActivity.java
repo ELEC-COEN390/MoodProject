@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             // User is already signed in, redirect to dashboard
-            startActivity(new Intent(MainActivity.this, dashboard.class)); // Create a dashboard activity
+            startActivity(new Intent(MainActivity.this, Dashboard.class)); // Create a dashboard activity
             finish();
         }
     }

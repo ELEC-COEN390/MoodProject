@@ -93,7 +93,7 @@ public class login extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             // User is already signed in, redirect to main dashboard
-            startActivity(new Intent(login.this, dashboard.class)); // Create a dashboard activity
+            startActivity(new Intent(login.this, Dashboard.class)); // Create a dashboard activity
             finish();
         }
     }
@@ -127,7 +127,7 @@ public class login extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
 
                             // Navigate to dashboard or main activity
-                            Intent intent = new Intent(login.this, dashboard.class); // Create a dashboard activity
+                            Intent intent = new Intent(login.this, Dashboard.class); // Create a dashboard activity
                             startActivity(intent);
                             finish(); // Close this activity
                         } else {

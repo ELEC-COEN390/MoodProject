@@ -23,7 +23,7 @@
 
         <activity android:name=".registration" />
         <activity android:name=".login" />
-        <activity android:name=".dashboard" />
+        <activity android:name=".Dashboard" />
 
     </application>
 </manifest>
