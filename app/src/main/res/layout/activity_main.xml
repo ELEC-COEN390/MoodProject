@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:text="Welcome!"
                 android:textAlignment="center"
-                android:textColor="#1F99B8"
+                android:textColor="@color/navy"
                 android:textSize="36sp"
                 android:textStyle="bold" />
 
