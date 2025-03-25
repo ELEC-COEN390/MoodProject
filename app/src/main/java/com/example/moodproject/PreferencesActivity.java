@@ -50,8 +50,6 @@ public class PreferencesActivity extends AppCompatActivity {
         healthCheckBox.setOnClickListener(v -> updatePreferences());
         artsCheckBox.setOnClickListener(v -> updatePreferences());
 
-        // Load saved preferences and update checkboxes
-        loadPreferences();
 
         // Set up save button click listener
         save_button.setOnClickListener(new View.OnClickListener() {

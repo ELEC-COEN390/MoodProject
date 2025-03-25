@@ -139,7 +139,7 @@ public class login extends AppCompatActivity {
                 });
     }
 
-    // Optional: Send password reset email
+    // Send password reset email
     private void sendPasswordResetEmail(String emailAddress) {
         mAuth.sendPasswordResetEmail(emailAddress)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

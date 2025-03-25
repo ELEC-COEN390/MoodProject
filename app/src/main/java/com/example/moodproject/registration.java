@@ -30,7 +30,6 @@ public class registration extends AppCompatActivity {
 
     // Firebase Authentication
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +89,6 @@ public class registration extends AppCompatActivity {
             return;
         }
 
-
-        // Show progress (you can add a progress dialog here)
 
         // Create user with email and password
         mAuth.createUserWithEmailAndPassword(emailText, passwordText)
