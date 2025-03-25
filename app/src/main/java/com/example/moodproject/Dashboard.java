@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,10 +54,10 @@ public class Dashboard extends AppCompatActivity {
     private static final int TOTAL_BYTES = (SAMPLE_RATE * RECORDING_DURATION_MS / 1000) * BYTES_PER_SAMPLE;
 
     private Button connectButton;
-    private Button recordButton;
-    private Button playButton;
+    private ImageButton recordButton;
     private TextView statusText;
     private ProgressBar progressBar;
+    private TextView spokenText;
 
     private Socket socket;
     private byte[] audioData;
@@ -80,14 +81,14 @@ public class Dashboard extends AppCompatActivity {
 
         // Initialize UI components
         connectButton = findViewById(R.id.connectButton);
-        recordButton = findViewById(R.id.recordButton);
-        playButton = findViewById(R.id.playButton);
+        recordButton = findViewById(R.id.ImageButton);
         statusText = findViewById(R.id.statusText);
         progressBar = findViewById(R.id.progressBar);
+        spokenText = findViewById(R.id.textView3);
 
         // Disable buttons initially
         recordButton.setEnabled(false);
-        playButton.setEnabled(false);
+
 
         // Setup audio buffer
         audioData = new byte[TOTAL_BYTES];
@@ -132,12 +133,6 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new PlayAudioTask().execute();
-            }
-        });
     }
 
     @Override
@@ -211,6 +206,7 @@ public class Dashboard extends AppCompatActivity {
         protected void onPostExecute(Boolean success) {
             progressBar.setVisibility(View.GONE);
             connectButton.setEnabled(true);
+            recordButton.setEnabled(success);
 
             if (success) {
                 statusText.setText("Connected to ESP32");
@@ -231,8 +227,7 @@ public class Dashboard extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             isRecording = true;
-            recordButton.setText("Stop");
-            playButton.setEnabled(false);
+            // recordButton.setText("Stop");
             statusText.setText("Recording...");
             progressBar.setVisibility(View.VISIBLE);
             progressBar.setProgress(0);
@@ -313,12 +308,12 @@ public class Dashboard extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean success) {
             isRecording = false;
-            recordButton.setText("Record");
+            //recordButton.setText("Record");
             progressBar.setVisibility(View.GONE);
 
             if (success) {
                 statusText.setText("Recording complete");
-                playButton.setEnabled(true);
+                // here write to the text view of the speech to text from the database function
             } else {
                 statusText.setText("Recording failed");
             }
@@ -334,7 +329,7 @@ public class Dashboard extends AppCompatActivity {
             progressBar.setProgress(0);
             connectButton.setEnabled(false);
             recordButton.setEnabled(false);
-            playButton.setEnabled(false);
+
         }
 
         @Override
@@ -383,7 +378,7 @@ public class Dashboard extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             connectButton.setEnabled(true);
             recordButton.setEnabled(true);
-            playButton.setEnabled(true);
+
         }
     }
 
@@ -417,5 +412,10 @@ public class Dashboard extends AppCompatActivity {
         short[] shorts = new short[shortBuffer.capacity()];
         shortBuffer.get(shorts);
         return shorts;
+    }
+    //text retrieval from database
+    private void setSpeachToText(){
+        //database logic to retrieve the text from the database
+        spokenText.setText("coucou");
     }
 }

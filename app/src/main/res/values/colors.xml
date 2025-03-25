@@ -27,5 +27,7 @@
     <color name="GreenYellow">#ADFF2F</color>
     <color name="YellowGreen">#9ACD32</color>
     <color name="other_red">#E53935</color>
-    <color name="other_blue">#1F98B7</color>
+    <color name="other_blue">#00B8D4</color>
+    <color name="other_black">@android:color/darker_gray</color>
+
 </resources>

@@ -4,5 +4,15 @@
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/other_blue</item>
         <item name="colorOnPrimary">@color/white</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!-- Navigation bar color -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 </resources>
