@@ -1,15 +1,20 @@
 package com.example.moodproject;
 
-
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -21,6 +26,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -29,6 +35,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,7 +49,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 
-public class Dashboard extends AppCompatActivity {
+public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "ESP32AudioClient";
 
@@ -65,6 +74,7 @@ public class Dashboard extends AppCompatActivity {
     private TextView statusText;
     private ProgressBar progressBar;
     private TextView spokenText;
+    private TextView micLabel;
 
     private Socket socket;
     private byte[] audioData;
@@ -72,6 +82,13 @@ public class Dashboard extends AppCompatActivity {
     private AudioTrack audioTrack;
 
     VideoView videoBackground;
+
+    // Navigation Drawer components
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private Toolbar toolbar;
+
+    private FirebaseAuth mAuth;
 
     private static final int PERMISSION_REQUEST_CODE = 200;
     private String[] requiredPermissions = {
@@ -95,6 +112,13 @@ public class Dashboard extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         spokenText = findViewById(R.id.textView3);
 
+        // May be null if not in your layout
+        try {
+            micLabel = findViewById(R.id.micLabel);
+        } catch (Exception e) {
+            Log.e(TAG, "micLabel not found in layout");
+        }
+
         // Disable buttons initially
         recordButton.setEnabled(false);
 
@@ -102,6 +126,9 @@ public class Dashboard extends AppCompatActivity {
 
         // Set up the video background
         setupVideoBackground();
+
+        // Set up the navigation drawer
+        setupNavigationDrawer();
 
         // Setup audio buffer
         audioData = new byte[TOTAL_BYTES];
@@ -145,9 +172,96 @@ public class Dashboard extends AppCompatActivity {
                 }
             }
         });
-
     }
 
+    // Setup the navigation drawer
+    private void setupNavigationDrawer() {
+        // Initialize components
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+
+        // Setup the toggle button
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Setup navigation item click listener
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    // Handle navigation item clicks
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks
+        int id = item.getItemId();
+
+        if (id == R.id.nav_home) {
+            // Already on home screen, just close drawer
+            Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.nav_settings) {
+            Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+            // Launch settings activity
+            // Intent intent = new Intent(this, SettingsActivity.class);
+            // startActivity(intent);
+        } else if (id == R.id.nav_history) {
+            Toast.makeText(this, "Recording History", Toast.LENGTH_SHORT).show();
+            // Launch history activity
+            // Intent intent = new Intent(this, HistoryActivity.class);
+            // startActivity(intent);
+        } else if (id == R.id.nav_wifi_settings) {
+            Toast.makeText(this, "WiFi Settings", Toast.LENGTH_SHORT).show();
+            // Open WiFi settings
+            startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+        } else if (id == R.id.nav_connection) {
+            Toast.makeText(this, "Connection Settings", Toast.LENGTH_SHORT).show();
+            // Show connection dialog or activity
+        } else if (id == R.id.nav_about) {
+            Toast.makeText(this, "About", Toast.LENGTH_SHORT).show();
+            // Show about dialog
+            showAboutDialog();
+        } else if (id == R.id.nav_logout) {
+            Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show();
+            // Show help dialog or activity
+
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+
+            mAuth = FirebaseAuth.getInstance();
+            mAuth.signOut();
+
+            finish();
+
+        }
+
+        // Close the drawer
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    // Method to show About dialog
+    private void showAboutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("About ESP32 Audio Client");
+        builder.setMessage("Version 1.0\n\nThis application allows you to record and process audio using an ESP32 microcontroller.");
+        builder.setPositiveButton("OK", null);
+        builder.show();
+    }
+
+    // Handle back button press
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     // Check if we have the required permissions
     private boolean checkPermissions() {
@@ -236,6 +350,11 @@ public class Dashboard extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
             progressBar.setProgress(0);
             startTime = System.currentTimeMillis();
+
+            // Update mic label if it exists
+            if (micLabel != null) {
+                micLabel.setText("Recording... 🔴");
+            }
         }
 
         @Override
@@ -315,9 +434,15 @@ public class Dashboard extends AppCompatActivity {
             //recordButton.setText("Record");
             progressBar.setVisibility(View.GONE);
 
+            // Reset mic label if it exists
+            if (micLabel != null) {
+                micLabel.setText("Tap to Speak 🗣️");
+            }
+
             if (success) {
                 statusText.setText("Recording complete");
                 // here write to the text view of the speech to text from the database function
+                setSpeachToText();
             } else {
                 statusText.setText("Recording failed");
             }
@@ -333,7 +458,6 @@ public class Dashboard extends AppCompatActivity {
             progressBar.setProgress(0);
             connectButton.setEnabled(false);
             recordButton.setEnabled(false);
-
         }
 
         @Override
@@ -382,7 +506,6 @@ public class Dashboard extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             connectButton.setEnabled(true);
             recordButton.setEnabled(true);
-
         }
     }
 
@@ -417,6 +540,7 @@ public class Dashboard extends AppCompatActivity {
         shortBuffer.get(shorts);
         return shorts;
     }
+
     //text retrieval from database
     private void setSpeachToText(){
         //database logic to retrieve the text from the database
@@ -448,7 +572,6 @@ public class Dashboard extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-
     }
 
     private void setupVideoBackground() {
@@ -461,8 +584,14 @@ public class Dashboard extends AppCompatActivity {
             videoBackground.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
+                    // Important: Set this for better scaling on different screens
+                    mp.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+
+                    // Make video loop continuously
                     mp.setLooping(true);
-                    mp.setVolume(0, 0); // Mute the video
+
+                    // Mute the video
+                    mp.setVolume(0, 0);
                 }
             });
 
@@ -486,7 +615,6 @@ public class Dashboard extends AppCompatActivity {
         super.onResume();
         // Re-hide system bars when returning to the activity
         makeFullScreen();
-        setupVideoBackground();
 
         // Resume video playback when activity comes to foreground
         if (videoBackground != null && !videoBackground.isPlaying()) {
@@ -515,9 +643,5 @@ public class Dashboard extends AppCompatActivity {
             audioTrack = null;
         }
         closeConnection();
-
     }
-
-
-
 }
