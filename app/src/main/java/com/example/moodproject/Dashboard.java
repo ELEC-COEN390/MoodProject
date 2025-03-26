@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -48,6 +47,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+
+import org.vosk.android.StorageService;
 
 public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -90,13 +91,18 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
     private FirebaseAuth mAuth;
 
+    // Speech recognition components
+    private VoskSpeechRecognizer voskRecognizer;
+    private File lastRecordedFile;
+
     private static final int PERMISSION_REQUEST_CODE = 200;
     private String[] requiredPermissions = {
             Manifest.permission.INTERNET,
             Manifest.permission.ACCESS_NETWORK_STATE,
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO // Add record audio permission for speech recognition
     };
 
     @Override
@@ -148,10 +154,17 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 .setTransferMode(AudioTrack.MODE_STREAM)
                 .build();
 
-        // Check and request permissions
-        if (!checkPermissions()) {
+// Remove the duplicate initialization
+        if (checkPermissions()) {
+            Log.d(TAG, "Permissions already granted, initializing speech recognizer");
+            initSpeechRecognizer();
+        } else {
+            Log.d(TAG, "Requesting permissions");
             requestPermissions();
+            // The initialization will happen in onRequestPermissionsResult
         }
+// Remove this line: initSpeechRecognizer();
+
 
         // Set button click listeners
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -172,6 +185,20 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 }
             }
         });
+    }
+
+    // Initialize the Vosk-based speech recognizer
+    private void initSpeechRecognizer() {
+        voskRecognizer = new VoskSpeechRecognizer(this);
+        Log.d(TAG, "Speech recognizer initialized");
+    }
+
+    // This method will be called by the VoskSpeechRecognizer to update the UI with recognized text
+    public void updateRecognizedText(String text) {
+        // Update the UI with recognized text
+        if (spokenText != null) {
+            spokenText.setText(text);
+        }
     }
 
     // Setup the navigation drawer
@@ -236,7 +263,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             mAuth.signOut();
 
             finish();
-
         }
 
         // Close the drawer
@@ -265,8 +291,11 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
     // Check if we have the required permissions
     private boolean checkPermissions() {
-        for (String permission : requiredPermissions) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+        String[] permissions = getRequiredPermissions();
+        for (String permission : permissions) {
+            boolean granted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+            Log.d(TAG, "Permission " + permission + " granted: " + granted);
+            if (!granted) {
                 return false;
             }
         }
@@ -275,8 +304,11 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
     // Request the required permissions
     private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, requiredPermissions, PERMISSION_REQUEST_CODE);
+        Log.d(TAG, "Requesting permissions...");
+        ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSION_REQUEST_CODE);
     }
+
+
 
     // Close socket connection
     private void closeConnection() {
@@ -415,6 +447,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             }
         }
 
+
+
         @Override
         protected void onProgressUpdate(Integer... values) {
             int progress = values[0];
@@ -441,7 +475,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
 
             if (success) {
                 statusText.setText("Recording complete");
-                // here write to the text view of the speech to text from the database function
+                // Process speech to text
                 setSpeachToText();
             } else {
                 statusText.setText("Recording failed");
@@ -509,10 +543,11 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         }
     }
 
-    // Save audio data to file
+    // Save audio data to file and process for speech recognition
     private void saveAudioToFile() {
         try {
-            File directory = new File(getExternalFilesDir(null), "AudioRecordings");
+            // Use internal storage instead of external
+            File directory = new File(getFilesDir(), "AudioRecordings");
             if (!directory.exists()) {
                 directory.mkdirs();
             }
@@ -525,8 +560,56 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             fos.close();
 
             Log.i(TAG, "Audio saved to " + file.getAbsolutePath());
+
+            // Store the file reference for speech recognition
+            lastRecordedFile = file;
+
         } catch (IOException e) {
             Log.e(TAG, "Error saving audio file: " + e.getMessage());
+        }
+    }
+
+    // Process the audio file for speech recognition
+    private void processSpeechRecognition(File audioFile) {
+        if (voskRecognizer != null) {
+            // Show loading indicator
+            progressBar.setVisibility(View.VISIBLE);
+            statusText.setText("Processing speech...");
+
+            // Process the file in a background thread
+            new Thread(() -> {
+                voskRecognizer.processAudioFile(audioFile);
+
+                // Hide loading indicator on the UI thread
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    statusText.setText("Speech processing complete");
+                });
+            }).start();
+        } else {
+            Log.e(TAG, "Speech recognizer is not initialized");
+            Toast.makeText(this, "Speech recognition not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Process audio data directly (alternative to file-based approach)
+    private void processAudioDataForSpeechRecognition() {
+        if (voskRecognizer != null && audioData != null) {
+            voskRecognizer.processAudioData(audioData);
+        }
+    }
+
+    // Updated speech to text method
+    private void setSpeachToText() {
+        // If we have a recorded file, process it
+        if (lastRecordedFile != null && lastRecordedFile.exists()) {
+            processSpeechRecognition(lastRecordedFile);
+        } else if (audioData != null) {
+            // Fallback to processing the audio data directly
+            processAudioDataForSpeechRecognition();
+        } else {
+            Log.e(TAG, "No recorded audio data found to process");
+            spokenText.setText("No audio recorded to transcribe");
         }
     }
 
@@ -539,12 +622,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         short[] shorts = new short[shortBuffer.capacity()];
         shortBuffer.get(shorts);
         return shorts;
-    }
-
-    //text retrieval from database
-    private void setSpeachToText(){
-        //database logic to retrieve the text from the database
-        spokenText.setText("coucou");
     }
 
     private void makeFullScreen() {
@@ -642,6 +719,88 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
             audioTrack.release();
             audioTrack = null;
         }
+        if (voskRecognizer != null) {
+            voskRecognizer.destroy();
+            voskRecognizer = null;
+        }
         closeConnection();
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            // Count denied permissions
+            int deniedCount = 0;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    deniedCount++;
+                }
+            }
+
+            if (deniedCount == 0) {
+                // All permissions granted
+                Log.d(TAG, "All permissions granted, initializing components");
+                initSpeechRecognizer();
+            } else {
+                // Some permissions were denied
+                Log.e(TAG, deniedCount + " permissions were denied");
+
+                // Show a more detailed explanation dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Permissions Required");
+                builder.setMessage("This app requires several permissions to function properly. " +
+                        "Without these permissions, some features like speech recognition and " +
+                        "audio recording will not work.");
+
+                builder.setPositiveButton("Request Again", (dialog, which) -> {
+                    requestPermissions();
+                });
+
+                builder.setNegativeButton("I Understand", (dialog, which) -> {
+                    Toast.makeText(this, "Some features may be limited due to missing permissions",
+                            Toast.LENGTH_LONG).show();
+
+                    // Try to initialize with limited functionality
+                    initSpeechRecognizer();
+                });
+
+                builder.show();
+            }
+        }
+    }
+
+    private String[] getRequiredPermissions() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            return new String[] {
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) { // Android 11+
+            return new String[] {
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        } else { // Android 10 and below
+            return new String[] {
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        }
+    }
+
+
+
 }
