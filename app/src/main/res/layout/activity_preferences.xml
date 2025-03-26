@@ -6,155 +6,298 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login"
     tools:context=".PreferencesActivity">
 
+    <!-- VideoView as background -->
+    <VideoView
+        android:id="@+id/videoBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Semi-transparent overlay to improve text readability -->
+    <View
+        android:id="@+id/overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#80FFFFFF"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="What most describes your interests?"
-        android:textColor="@color/navy"
-        android:textSize="28sp"
-        android:textStyle="bold"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="40dp"
+        android:elevation="4dp"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="What describes your interests?"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="40dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Select all that apply to personalize your experience"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_music"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView">
+        app:layout_constraintTop_toBottomOf="@id/subtitle">
 
-        <CheckBox
-            android:id="@+id/checkBox_music"
-            android:layout_width="284dp"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="Music and Concerts"
-            android:textColor="@color/navy"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎵"
+                android:textSize="24sp"
+                android:layout_marginEnd="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBox_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Music and Concerts"
+                android:textColor="#213857"
+                android:textColorLink="#213857"
+                android:textSize="16sp" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_sports"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView_music">
 
-        <CheckBox
-            android:id="@+id/checkBox_sports"
-            android:layout_width="284dp"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="Sports and Outdoor Activity"
-            android:textColor="@color/navy"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏀"
+                android:textSize="24sp"
+                android:layout_marginEnd="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBox_sports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Sports and Outdoor Activity"
+                android:textColor="#213857"
+                android:textColorLink="#213857"
+                android:textSize="16sp" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_food"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView_sports">
 
-        <CheckBox
-            android:id="@+id/checkBox_food"
-            android:layout_width="268dp"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="Food and Cooking"
-            android:textColor="@color/navy"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🍳"
+                android:textSize="24sp"
+                android:layout_marginEnd="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBox_food"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Food and Cooking"
+                android:textColor="#213857"
+                android:textColorLink="#213857"
+                android:textSize="16sp" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_health"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView_food">
 
-        <CheckBox
-            android:id="@+id/checkBox_health"
-            android:layout_width="258dp"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="Mind, Body, and Health"
-            android:textColor="@color/navy"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧘"
+                android:textSize="24sp"
+                android:layout_marginEnd="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBox_health"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Mind, Body, and Health"
+                android:textColor="#213857"
+                android:textColorLink="#213857"
+                android:textSize="16sp" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_arts"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView_health">
 
-        <CheckBox
-            android:id="@+id/checkBox_arts"
-            android:layout_width="304dp"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="Arts"
-            android:textColor="@color/navy"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎨"
+                android:textSize="24sp"
+                android:layout_marginEnd="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBox_arts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Arts"
+                android:textColor="@color/navy"
+                android:textColorLink="#213857"
+                android:textSize="16sp" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView_travel"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginHorizontal="30dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="30dp"
-        app:cardElevation="10dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView_arts">
 
-        <CheckBox
-            android:id="@+id/checkBox_travel"
-            android:layout_width="276dp"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="Travel and Adventure"
-            android:textColor="@color/navy"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✈️"
+                android:textSize="24sp"
+                android:layout_marginEnd="12dp"/>
+
+            <CheckBox
+                android:id="@+id/checkBox_travel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Travel and Adventure"
+                android:textColor="#213857"
+                android:textColorLink="#213857"
+                android:textSize="16sp" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <Button
@@ -162,14 +305,16 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginHorizontal="50dp"
-        android:layout_marginTop="40dp"
-        android:backgroundTint="@color/navy"
-        android:text="Save"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#213857"
+        android:elevation="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Save Preferences ✓"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textColorLink="#213857"
+        android:textSize="18sp"
         app:cornerRadius="30dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardView_travel" />
 

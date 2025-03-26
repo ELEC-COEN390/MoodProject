@@ -5,6 +5,9 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -12,16 +15,20 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,6 +71,8 @@ public class Dashboard extends AppCompatActivity {
     private boolean isRecording = false;
     private AudioTrack audioTrack;
 
+    VideoView videoBackground;
+
     private static final int PERMISSION_REQUEST_CODE = 200;
     private String[] requiredPermissions = {
             Manifest.permission.INTERNET,
@@ -89,6 +98,10 @@ public class Dashboard extends AppCompatActivity {
         // Disable buttons initially
         recordButton.setEnabled(false);
 
+        videoBackground = findViewById(R.id.videoBackground);
+
+        // Set up the video background
+        setupVideoBackground();
 
         // Setup audio buffer
         audioData = new byte[TOTAL_BYTES];
@@ -135,15 +148,6 @@ public class Dashboard extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (audioTrack != null) {
-            audioTrack.release();
-            audioTrack = null;
-        }
-        closeConnection();
-    }
 
     // Check if we have the required permissions
     private boolean checkPermissions() {
@@ -418,4 +422,92 @@ public class Dashboard extends AppCompatActivity {
         //database logic to retrieve the text from the database
         spokenText.setText("coucou");
     }
+
+    private void makeFullScreen() {
+        // Make the activity full screen
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        // Hide the status bar and navigation bar
+        WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(),
+                getWindow().getDecorView());
+        controller.hide(WindowInsetsCompat.Type.systemBars());
+        controller.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+
+        // Add these flags for older Android versions
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        );
+    }
+
+    private void setupVideoBackground() {
+        try {
+            // Path to the video file in raw folder
+            Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/raw/wave");
+            videoBackground.setVideoURI(videoUri);
+
+            // Loop the video
+            videoBackground.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.setLooping(true);
+                    mp.setVolume(0, 0); // Mute the video
+                }
+            });
+
+            // Handle video completion
+            videoBackground.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    videoBackground.start(); // Restart the video when it ends
+                }
+            });
+
+            // Start playing the video
+            videoBackground.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Re-hide system bars when returning to the activity
+        makeFullScreen();
+        setupVideoBackground();
+
+        // Resume video playback when activity comes to foreground
+        if (videoBackground != null && !videoBackground.isPlaying()) {
+            videoBackground.start();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause video when activity is not visible
+        if (videoBackground != null && videoBackground.isPlaying()) {
+            videoBackground.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up resources
+        if (videoBackground != null) {
+            videoBackground.stopPlayback();
+        }
+        if (audioTrack != null) {
+            audioTrack.release();
+            audioTrack = null;
+        }
+        closeConnection();
+
+    }
+
+
+
 }
