@@ -748,7 +748,7 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 // Some permissions were denied
                 Log.e(TAG, deniedCount + " permissions were denied");
 
-
+                // Show a more detailed explanation dialog
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Permissions Required");
                 builder.setMessage("This app requires several permissions to function properly. " +
